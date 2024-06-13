@@ -1,0 +1,813 @@
+C:\Users\Hashim\source\repos\CurrencyExchangeService\CurrencyExchangeService\Properties\AssemblyInfo.cs
+
+
+using System.Reflection;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
+
+// General Information about an assembly is controlled through the following 
+// set of attributes. Change these attribute values to modify the information
+// associated with an assembly.
+[assembly: AssemblyTitle("CurrencyExchangeService")]
+[assembly: AssemblyDescription("")]
+[assembly: AssemblyConfiguration("")]
+[assembly: AssemblyCompany("")]
+[assembly: AssemblyProduct("CurrencyExchangeService")]
+[assembly: AssemblyCopyright("Copyright ©  2024")]
+[assembly: AssemblyTrademark("")]
+[assembly: AssemblyCulture("")]
+
+// Setting ComVisible to false makes the types in this assembly not visible 
+// to COM components.  If you need to access a type in this assembly from 
+// COM, set the ComVisible attribute to true on that type.
+[assembly: ComVisible(false)]
+
+// The following GUID is for the ID of the typelib if this project is exposed to COM
+[assembly: Guid("a66fd4f3-5f40-4189-b913-a152825c52f8")]
+
+// Version information for an assembly consists of the following four values:
+//
+//      Major Version
+//      Minor Version 
+//      Build Number
+//      Revision
+//
+// You can specify all the values or you can default the Build and Revision Numbers 
+// by using the '*' as shown below:
+// [assembly: AssemblyVersion("1.0.*")]
+[assembly: AssemblyVersion("1.0.0.0")]
+[assembly: AssemblyFileVersion("1.0.0.0")]
+
+
+-----------------------------------------------------------------------------------------------------------------------
+C:\Users\Hashim\source\repos\CurrencyExchangeService\CurrencyExchangeService\Data\ApplicationDbContext.cs
+
+using Microsoft.EntityFrameworkCore;
+using CurrencyExchangeService.Models;
+
+namespace CurrencyExchangeService.Data
+{
+    public class ApplicationDbContext : DbContext
+    {
+        public DbSet<User> Users { get; set; }
+        public DbSet<Transaction> Transactions { get; set; }
+        public DbSet<UserCurrency> UserCurrencies { get; set; }
+        public DbSet<ExchangeRate> ExchangeRates { get; set; }
+
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            optionsBuilder.UseSqlite("Data Source=currencyexchange.db");
+        }
+    }
+}
+
+
+
+----------------------------------------------------------------------------------------------------------------------
+
+
+C:\Users\Hashim\source\repos\CurrencyExchangeService\CurrencyExchangeService\Models\ExchangeRate.cs
+
+
+using System;
+
+namespace CurrencyExchangeService.Models
+{
+    public class ExchangeRate
+    {
+        public int Id { get; set; }
+        public string CurrencyCode { get; set; }
+        public decimal Rate { get; set; }
+        public DateTime Date { get; set; }
+    }
+}
+
+
+---------------------------------------------------------------------------------------------------------------------
+
+C:\Users\Hashim\source\repos\CurrencyExchangeService\CurrencyExchangeService\Models\Transaction.cs
+
+using System;
+
+namespace CurrencyExchangeService.Models
+{
+    public class Transaction
+    {
+        public int Id { get; set; }
+        public int UserId { get; set; }
+        public User User { get; set; }
+        public string Type { get; set; } // e.g., "TopUp", "Buy", "Sell"
+        public decimal Amount { get; set; }
+        public DateTime Date { get; set; }
+    }
+}
+
+
+-----------------------------------------------------------------------------------------------------------------
+C:\Users\Hashim\source\repos\CurrencyExchangeService\CurrencyExchangeService\Models\User.cs
+using System.Collections.Generic;
+
+namespace CurrencyExchangeService.Models
+{
+    public class User
+    {
+        public int Id { get; set; }
+        public string Username { get; set; }
+        public string Password { get; set; }
+        public decimal Balance { get; set; }
+        public ICollection<UserCurrency> UserCurrencies { get; set; }
+        public ICollection<Transaction> Transactions { get; set; }
+    }
+}
+
+-----------------------------------------------------------------------------------------------------------------
+C:\Users\Hashim\source\repos\CurrencyExchangeService\CurrencyExchangeService\Models\UserCurrency.cs
+
+namespace CurrencyExchangeService.Models
+{
+    public class UserCurrency
+    {
+        public int Id { get; set; }
+        public int UserId { get; set; }
+        public User User { get; set; }
+        public string CurrencyCode { get; set; }
+        public decimal Amount { get; set; }
+    }
+}
+
+
+
+-----------------------------------------------------------------------------------------------------------------
+C:\Users\Hashim\source\repos\CurrencyExchangeService\CurrencyExchangeService\App.config
+
+<?xml version="1.0" encoding="utf-8"?>
+<configuration>
+	<connectionStrings>
+		<add name="ApplicationDbContext" connectionString="Data Source=CurrencyExchange.db" providerName="System.Data.SqlClient" />
+	</connectionStrings>
+	<system.serviceModel>
+		<bindings>
+			<basicHttpBinding>
+				<binding name="BasicHttpBinding_ICurrencyExchangeService" />
+			</basicHttpBinding>
+		</bindings>
+		<services>
+			<service name="CurrencyExchangeService.CurrencyExchangeService">
+				<endpoint address="" binding="basicHttpBinding" contract="CurrencyExchangeService.ICurrencyExchangeService">
+					<identity>
+						<dns value="localhost" />
+					</identity>
+				</endpoint>
+				<host>
+					<baseAddresses>
+						<add baseAddress="http://localhost:8733/Design_Time_Addresses/CurrencyExchangeService/Service1/" />
+					</baseAddresses>
+				</host>
+			</service>
+		</services>
+		<behaviors>
+			<serviceBehaviors>
+				<behavior>
+					<serviceMetadata httpGetEnabled="True" />
+					<serviceDebug includeExceptionDetailInFaults="True" />
+				</behavior>
+			</serviceBehaviors>
+		</behaviors>
+	</system.serviceModel>
+	<runtime>
+		<assemblyBinding xmlns="urn:schemas-microsoft-com:asm.v1">
+			<dependentAssembly>
+				<assemblyIdentity name="System.Runtime.CompilerServices.Unsafe" publicKeyToken="b03f5f7f11d50a3a" culture="neutral" />
+				<bindingRedirect oldVersion="0.0.0.0-4.0.6.0" newVersion="4.0.6.0" />
+			</dependentAssembly>
+			<dependentAssembly>
+				<assemblyIdentity name="System.Memory" publicKeyToken="cc7b13ffcd2ddd51" culture="neutral" />
+				<bindingRedirect oldVersion="0.0.0.0-4.0.1.1" newVersion="4.0.1.1" />
+			</dependentAssembly>
+			<dependentAssembly>
+				<assemblyIdentity name="Microsoft.Extensions.Primitives" publicKeyToken="adb9793829ddae60" culture="neutral" />
+				<bindingRedirect oldVersion="0.0.0.0-3.1.32.0" newVersion="3.1.32.0" />
+			</dependentAssembly>
+			<dependentAssembly>
+				<assemblyIdentity name="Microsoft.Extensions.Configuration.Abstractions" publicKeyToken="adb9793829ddae60" culture="neutral" />
+				<bindingRedirect oldVersion="0.0.0.0-3.1.32.0" newVersion="3.1.32.0" />
+			</dependentAssembly>
+			<dependentAssembly>
+				<assemblyIdentity name="Microsoft.Extensions.DependencyInjection.Abstractions" publicKeyToken="adb9793829ddae60" culture="neutral" />
+				<bindingRedirect oldVersion="0.0.0.0-8.0.0.0" newVersion="8.0.0.0" />
+			</dependentAssembly>
+			<dependentAssembly>
+				<assemblyIdentity name="Microsoft.Extensions.Caching.Abstractions" publicKeyToken="adb9793829ddae60" culture="neutral" />
+				<bindingRedirect oldVersion="0.0.0.0-3.1.32.0" newVersion="3.1.32.0" />
+			</dependentAssembly>
+			<dependentAssembly>
+				<assemblyIdentity name="Microsoft.Extensions.Options" publicKeyToken="adb9793829ddae60" culture="neutral" />
+				<bindingRedirect oldVersion="0.0.0.0-3.1.32.0" newVersion="3.1.32.0" />
+			</dependentAssembly>
+			<dependentAssembly>
+				<assemblyIdentity name="Microsoft.Extensions.Logging.Abstractions" publicKeyToken="adb9793829ddae60" culture="neutral" />
+				<bindingRedirect oldVersion="0.0.0.0-3.1.32.0" newVersion="3.1.32.0" />
+			</dependentAssembly>
+			<dependentAssembly>
+				<assemblyIdentity name="Newtonsoft.Json" publicKeyToken="30ad4fe6b2a6aeed" culture="neutral" />
+				<bindingRedirect oldVersion="0.0.0.0-13.0.0.0" newVersion="13.0.0.0" />
+			</dependentAssembly>
+			<dependentAssembly>
+				<assemblyIdentity name="System.Threading.Tasks.Extensions" publicKeyToken="cc7b13ffcd2ddd51" culture="neutral" />
+				<bindingRedirect oldVersion="0.0.0.0-4.2.0.1" newVersion="4.2.0.1" />
+			</dependentAssembly>
+			<dependentAssembly>
+				<assemblyIdentity name="Microsoft.Extensions.DependencyInjection" publicKeyToken="adb9793829ddae60" culture="neutral" />
+				<bindingRedirect oldVersion="0.0.0.0-8.0.0.0" newVersion="8.0.0.0" />
+			</dependentAssembly>
+			<dependentAssembly>
+				<assemblyIdentity name="System.ComponentModel.Annotations" publicKeyToken="b03f5f7f11d50a3a" culture="neutral" />
+				<bindingRedirect oldVersion="0.0.0.0-4.2.1.0" newVersion="4.2.1.0" />
+			</dependentAssembly>
+			<dependentAssembly>
+				<assemblyIdentity name="Microsoft.Bcl.AsyncInterfaces" publicKeyToken="cc7b13ffcd2ddd51" culture="neutral" />
+				<bindingRedirect oldVersion="0.0.0.0-8.0.0.0" newVersion="8.0.0.0" />
+			</dependentAssembly>
+		</assemblyBinding>
+	</runtime>
+</configuration>
+
+
+
+-----------------------------------------------------------------------------------------------------------------
+
+C:\Users\Hashim\source\repos\CurrencyExchangeService\CurrencyExchangeService\CurrencyExchangeService.cs
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.ServiceModel;
+using System.Threading.Tasks;
+using CurrencyExchangeService.Data;
+using CurrencyExchangeService.Models;
+using Microsoft.EntityFrameworkCore;
+
+namespace CurrencyExchangeService
+{
+    public class CurrencyExchangeService : ICurrencyExchangeService
+    {
+        private readonly ApplicationDbContext _context;
+        private readonly NbpApiClient _nbpApiClient = new NbpApiClient();
+
+        public CurrencyExchangeService(ApplicationDbContext context)
+        {
+            _context = context;
+        }
+
+        public async Task<User> CreateUserAsync(string username, string password)
+        {
+            if (await _context.Users.AnyAsync(u => u.Username == username))
+            {
+                throw new FaultException("Username already exists.");
+            }
+
+            var user = new User
+            {
+                Username = username,
+                Password = password,
+                Balance = 0
+            };
+            _context.Users.Add(user);
+            await _context.SaveChangesAsync();
+            return user;
+        }
+
+        public async Task<User> LoginUserAsync(string username, string password)
+        {
+            var user = await _context.Users.SingleOrDefaultAsync(u => u.Username == username && u.Password == password);
+            if (user == null)
+            {
+                throw new FaultException("Invalid username or password.");
+            }
+            return user;
+        }
+
+        public async Task<bool> TopUpAccountAsync(string username, decimal amount)
+        {
+            var user = await _context.Users.SingleOrDefaultAsync(u => u.Username == username);
+            if (user != null)
+            {
+                user.Balance += amount;
+                _context.Transactions.Add(new Transaction
+                {
+                    UserId = user.Id,
+                    Type = "TopUp",
+                    Amount = amount,
+                    Date = DateTime.UtcNow
+                });
+                await _context.SaveChangesAsync();
+                return true;
+            }
+            return false;
+        }
+
+        public async Task<decimal> GetExchangeRateAsync(string currencyCode)
+        {
+            return await _nbpApiClient.GetExchangeRateAsync(currencyCode);
+        }
+
+        public async Task<List<ExchangeRate>> GetArchivedExchangeRatesAsync(DateTime startDate, DateTime endDate)
+        {
+            return await _nbpApiClient.GetArchivedExchangeRatesAsync("USD", startDate, endDate); // Example currency
+        }
+
+        public async Task<bool> BuyCurrencyAsync(string username, string currencyCode, decimal amount)
+        {
+            var user = await _context.Users.SingleOrDefaultAsync(u => u.Username == username);
+            if (user != null)
+            {
+                // Logic to buy currency
+                return true;
+            }
+            return false;
+        }
+
+        public async Task<bool> SellCurrencyAsync(string username, string currencyCode, decimal amount)
+        {
+            var user = await _context.Users.SingleOrDefaultAsync(u => u.Username == username);
+            if (user != null)
+            {
+                // Logic to sell currency
+                return true;
+            }
+            return false;
+        }
+
+        public async Task<decimal> GetUserBalanceAsync(string username)
+        {
+            var user = await _context.Users.SingleOrDefaultAsync(u => u.Username == username);
+            return user?.Balance ?? 0;
+        }
+
+        public async Task<decimal> CalculateExchangeAmountAsync(string fromCurrency, string toCurrency, decimal amount)
+        {
+            bool isFromCurrencyValid = await _nbpApiClient.ValidateCurrencyCodeAsync(fromCurrency);
+            bool isToCurrencyValid = await _nbpApiClient.ValidateCurrencyCodeAsync(toCurrency);
+
+            if (!isFromCurrencyValid || !isToCurrencyValid)
+            {
+                throw new FaultException($"Invalid currency code(s): {(!isFromCurrencyValid ? fromCurrency : "")} {(!isToCurrencyValid ? toCurrency : "")}");
+            }
+
+            decimal fromRate = await _nbpApiClient.GetExchangeRateAsync(fromCurrency);
+            decimal toRate = await _nbpApiClient.GetExchangeRateAsync(toCurrency);
+
+            decimal amountInPln = amount * fromRate;
+            decimal convertedAmount = amountInPln / toRate;
+
+            return convertedAmount;
+        }
+    }
+}
+
+
+-----------------------------------------------------------------------------------------------------------------
+C:\Users\Hashim\source\repos\CurrencyExchangeService\CurrencyExchangeService\CurrencyExchangeService.svc
+<%@ ServiceHost Language="C#" Debug="true" Service="CurrencyExchangeService.CurrencyExchangeService" Factory="CurrencyExchangeService.CustomServiceHostFactory" CodeBehind="CurrencyExchangeService.svc.cs" %>
+
+
+-----------------------------------------------------------------------------------------------------------------
+C:\Users\Hashim\source\repos\CurrencyExchangeService\CurrencyExchangeService\CustomServiceHostFactory.cs
+
+
+using System;
+using System.ServiceModel;
+using System.ServiceModel.Activation;
+
+namespace CurrencyExchangeService
+{
+    public class CustomServiceHostFactory : ServiceHostFactory
+    {
+        protected override ServiceHost CreateServiceHost(Type serviceType, Uri[] baseAddresses)
+        {
+            return new ServiceHost(serviceType, baseAddresses);
+        }
+    }
+}
+
+
+
+-----------------------------------------------------------------------------------------------------------------
+C:\Users\Hashim\source\repos\CurrencyExchangeService\CurrencyExchangeService\ICurrencyExchangeService.cs
+using System;
+using System.Collections.Generic;
+using System.ServiceModel;
+using System.Threading.Tasks;
+using CurrencyExchangeService.Models;
+
+namespace CurrencyExchangeService
+{
+    [ServiceContract]
+    public interface ICurrencyExchangeService
+    {
+        [OperationContract]
+        Task<User> CreateUserAsync(string username, string password);
+
+        [OperationContract]
+        Task<User> LoginUserAsync(string username, string password);
+
+        [OperationContract]
+        Task<bool> TopUpAccountAsync(string username, decimal amount);
+
+        [OperationContract]
+        Task<decimal> GetExchangeRateAsync(string currencyCode);
+
+        [OperationContract]
+        Task<List<ExchangeRate>> GetArchivedExchangeRatesAsync(DateTime startDate, DateTime endDate);
+
+        [OperationContract]
+        Task<bool> BuyCurrencyAsync(string username, string currencyCode, decimal amount);
+
+        [OperationContract]
+        Task<bool> SellCurrencyAsync(string username, string currencyCode, decimal amount);
+
+        [OperationContract]
+        Task<decimal> GetUserBalanceAsync(string username);
+
+        [OperationContract]
+        Task<decimal> CalculateExchangeAmountAsync(string fromCurrency, string toCurrency, decimal amount);
+    }
+}
+
+
+-----------------------------------------------------------------------------------------------------------------
+C:\Users\Hashim\source\repos\CurrencyExchangeService\CurrencyExchangeService\NbpApiClient.cs
+using System;
+using System.Collections.Generic;
+using System.Net.Http;
+using System.Threading.Tasks;
+using Newtonsoft.Json.Linq;
+
+namespace CurrencyExchangeService
+{
+    public class NbpApiClient
+    {
+        private static readonly HttpClient client = new HttpClient();
+
+        public async Task<decimal> GetExchangeRateAsync(string currencyCode)
+        {
+            var response = await client.GetStringAsync($"http://api.nbp.pl/api/exchangerates/rates/A/{currencyCode}/?format=json");
+            var json = JObject.Parse(response);
+            var rate = json["rates"][0]["mid"].Value<decimal>();
+            return rate;
+        }
+
+        public async Task<List<Models.ExchangeRate>> GetArchivedExchangeRatesAsync(string currencyCode, DateTime startDate, DateTime endDate)
+        {
+            var response = await client.GetStringAsync($"http://api.nbp.pl/api/exchangerates/rates/A/{currencyCode}/{startDate:yyyy-MM-dd}/{endDate:yyyy-MM-dd}/?format=json");
+            var json = JObject.Parse(response);
+            var rates = new List<Models.ExchangeRate>();
+
+            foreach (var item in json["rates"])
+            {
+                rates.Add(new Models.ExchangeRate
+                {
+                    CurrencyCode = currencyCode,
+                    Rate = item["mid"].Value<decimal>(),
+                    Date = item["effectiveDate"].Value<DateTime>()
+                });
+            }
+            return rates;
+        }
+
+        public async Task<bool> ValidateCurrencyCodeAsync(string currencyCode)
+        {
+            try
+            {
+                await GetExchangeRateAsync(currencyCode);
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+    }
+}
+
+
+
+-----------------------------------------------------------------------------------------------------------------
+C:\Users\Hashim\source\repos\CurrencyExchangeService\CurrencyExchangeService\packages.config
+<?xml version="1.0" encoding="utf-8"?>
+<packages>
+  <package id="Microsoft.Bcl.AsyncInterfaces" version="8.0.0" targetFramework="net472" />
+  <package id="Microsoft.Bcl.HashCode" version="1.1.1" targetFramework="net472" />
+  <package id="Microsoft.CSharp" version="4.7.0" targetFramework="net472" />
+  <package id="Microsoft.Data.Sqlite.Core" version="3.1.32" targetFramework="net472" />
+  <package id="Microsoft.DotNet.PlatformAbstractions" version="3.1.6" targetFramework="net472" />
+  <package id="Microsoft.EntityFrameworkCore" version="3.1.32" targetFramework="net472" />
+  <package id="Microsoft.EntityFrameworkCore.Abstractions" version="3.1.32" targetFramework="net472" />
+  <package id="Microsoft.EntityFrameworkCore.Analyzers" version="3.1.32" targetFramework="net472" />
+  <package id="Microsoft.EntityFrameworkCore.Design" version="3.1.32" targetFramework="net472" developmentDependency="true" />
+  <package id="Microsoft.EntityFrameworkCore.Relational" version="3.1.32" targetFramework="net472" />
+  <package id="Microsoft.EntityFrameworkCore.Sqlite" version="3.1.32" targetFramework="net472" />
+  <package id="Microsoft.EntityFrameworkCore.Sqlite.Core" version="3.1.32" targetFramework="net472" />
+  <package id="Microsoft.EntityFrameworkCore.Tools" version="3.1.32" targetFramework="net472" developmentDependency="true" />
+  <package id="Microsoft.Extensions.Caching.Abstractions" version="3.1.32" targetFramework="net472" />
+  <package id="Microsoft.Extensions.Caching.Memory" version="3.1.32" targetFramework="net472" />
+  <package id="Microsoft.Extensions.Configuration" version="3.1.32" targetFramework="net472" />
+  <package id="Microsoft.Extensions.Configuration.Abstractions" version="3.1.32" targetFramework="net472" />
+  <package id="Microsoft.Extensions.Configuration.Binder" version="3.1.32" targetFramework="net472" />
+  <package id="Microsoft.Extensions.DependencyInjection" version="8.0.0" targetFramework="net472" />
+  <package id="Microsoft.Extensions.DependencyInjection.Abstractions" version="8.0.0" targetFramework="net472" />
+  <package id="Microsoft.Extensions.DependencyModel" version="3.1.25" targetFramework="net472" />
+  <package id="Microsoft.Extensions.Logging" version="3.1.32" targetFramework="net472" />
+  <package id="Microsoft.Extensions.Logging.Abstractions" version="3.1.32" targetFramework="net472" />
+  <package id="Microsoft.Extensions.Options" version="3.1.32" targetFramework="net472" />
+  <package id="Microsoft.Extensions.Primitives" version="3.1.32" targetFramework="net472" />
+  <package id="Newtonsoft.Json" version="13.0.2" targetFramework="net472" />
+  <package id="SQLitePCLRaw.bundle_e_sqlite3" version="2.1.2" targetFramework="net472" />
+  <package id="SQLitePCLRaw.core" version="2.1.2" targetFramework="net472" />
+  <package id="SQLitePCLRaw.lib.e_sqlite3" version="2.1.2" targetFramework="net472" />
+  <package id="SQLitePCLRaw.provider.dynamic_cdecl" version="2.1.2" targetFramework="net472" />
+  <package id="System.Buffers" version="4.5.1" targetFramework="net472" />
+  <package id="System.Collections.Immutable" version="1.7.1" targetFramework="net472" />
+  <package id="System.ComponentModel.Annotations" version="4.7.0" targetFramework="net472" />
+  <package id="System.Diagnostics.DiagnosticSource" version="4.7.1" targetFramework="net472" />
+  <package id="System.IO" version="4.3.0" targetFramework="net472" />
+  <package id="System.Memory" version="4.5.4" targetFramework="net472" />
+  <package id="System.Net.Http" version="4.3.4" targetFramework="net472" />
+  <package id="System.Numerics.Vectors" version="4.5.0" targetFramework="net472" />
+  <package id="System.Runtime" version="4.3.0" targetFramework="net472" />
+  <package id="System.Runtime.CompilerServices.Unsafe" version="4.7.1" targetFramework="net472" />
+  <package id="System.Runtime.InteropServices.RuntimeInformation" version="4.0.0" targetFramework="net472" />
+  <package id="System.Security.Cryptography.Algorithms" version="4.3.0" targetFramework="net472" />
+  <package id="System.Security.Cryptography.Encoding" version="4.3.0" targetFramework="net472" />
+  <package id="System.Security.Cryptography.Primitives" version="4.3.0" targetFramework="net472" />
+  <package id="System.Security.Cryptography.X509Certificates" version="4.3.0" targetFramework="net472" />
+  <package id="System.Threading.Tasks.Extensions" version="4.5.4" targetFramework="net472" />
+</packages>
+-----------------------------------------------------------------------------------------------------------------
+
+"C:\Users\Hashim\source\repos\CurrencyExchangeService\CurrencyExchangeService\CurrencyExchangeService.csproj"
+
+<Project ToolsVersion="15.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="..\packages\Microsoft.EntityFrameworkCore.Design.3.1.32\build\net461\Microsoft.EntityFrameworkCore.Design.props" Condition="Exists('..\packages\Microsoft.EntityFrameworkCore.Design.3.1.32\build\net461\Microsoft.EntityFrameworkCore.Design.props')" />
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.0.50727</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{A66FD4F3-5F40-4189-B913-A152825C52F8}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>CurrencyExchangeService</RootNamespace>
+    <AssemblyName>CurrencyExchangeService</AssemblyName>
+    <ProjectTypeGuids>{3D9AD99F-2412-4246-B90B-4EAA41C64699};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <StartArguments>/client:"WcfTestClient.exe"</StartArguments>
+    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
+    <WcfConfigValidationEnabled>True</WcfConfigValidationEnabled>
+    <XsdCodeGenEnabled>True</XsdCodeGenEnabled>
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Microsoft.Bcl.AsyncInterfaces, Version=8.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Bcl.AsyncInterfaces.8.0.0\lib\net462\Microsoft.Bcl.AsyncInterfaces.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Bcl.HashCode, Version=1.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Bcl.HashCode.1.1.1\lib\net461\Microsoft.Bcl.HashCode.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="Microsoft.Data.Sqlite, Version=3.1.32.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Data.Sqlite.Core.3.1.32\lib\netstandard2.0\Microsoft.Data.Sqlite.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.DotNet.PlatformAbstractions, Version=3.1.6.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.DotNet.PlatformAbstractions.3.1.6\lib\net45\Microsoft.DotNet.PlatformAbstractions.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.EntityFrameworkCore, Version=3.1.32.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.EntityFrameworkCore.3.1.32\lib\netstandard2.0\Microsoft.EntityFrameworkCore.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.EntityFrameworkCore.Abstractions, Version=3.1.32.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.EntityFrameworkCore.Abstractions.3.1.32\lib\netstandard2.0\Microsoft.EntityFrameworkCore.Abstractions.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.EntityFrameworkCore.Design, Version=3.1.32.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.EntityFrameworkCore.Design.3.1.32\lib\netstandard2.0\Microsoft.EntityFrameworkCore.Design.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.EntityFrameworkCore.Relational, Version=3.1.32.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.EntityFrameworkCore.Relational.3.1.32\lib\netstandard2.0\Microsoft.EntityFrameworkCore.Relational.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.EntityFrameworkCore.Sqlite, Version=3.1.32.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.EntityFrameworkCore.Sqlite.Core.3.1.32\lib\netstandard2.0\Microsoft.EntityFrameworkCore.Sqlite.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Extensions.Caching.Abstractions, Version=3.1.32.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Extensions.Caching.Abstractions.3.1.32\lib\netstandard2.0\Microsoft.Extensions.Caching.Abstractions.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Extensions.Caching.Memory, Version=3.1.32.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Extensions.Caching.Memory.3.1.32\lib\netstandard2.0\Microsoft.Extensions.Caching.Memory.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Extensions.Configuration, Version=3.1.32.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Extensions.Configuration.3.1.32\lib\netstandard2.0\Microsoft.Extensions.Configuration.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Extensions.Configuration.Abstractions, Version=3.1.32.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Extensions.Configuration.Abstractions.3.1.32\lib\netstandard2.0\Microsoft.Extensions.Configuration.Abstractions.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Extensions.Configuration.Binder, Version=3.1.32.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Extensions.Configuration.Binder.3.1.32\lib\netstandard2.0\Microsoft.Extensions.Configuration.Binder.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Extensions.DependencyInjection, Version=8.0.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Extensions.DependencyInjection.8.0.0\lib\net462\Microsoft.Extensions.DependencyInjection.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Extensions.DependencyInjection.Abstractions, Version=8.0.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Extensions.DependencyInjection.Abstractions.8.0.0\lib\net462\Microsoft.Extensions.DependencyInjection.Abstractions.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Extensions.DependencyModel, Version=3.1.25.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Extensions.DependencyModel.3.1.25\lib\net451\Microsoft.Extensions.DependencyModel.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Extensions.Logging, Version=3.1.32.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Extensions.Logging.3.1.32\lib\netstandard2.0\Microsoft.Extensions.Logging.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Extensions.Logging.Abstractions, Version=3.1.32.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Extensions.Logging.Abstractions.3.1.32\lib\netstandard2.0\Microsoft.Extensions.Logging.Abstractions.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Extensions.Options, Version=3.1.32.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Extensions.Options.3.1.32\lib\netstandard2.0\Microsoft.Extensions.Options.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Extensions.Primitives, Version=3.1.32.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Extensions.Primitives.3.1.32\lib\netstandard2.0\Microsoft.Extensions.Primitives.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\..\CurrencyExchangeSolution\packages\Newtonsoft.Json.13.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="SQLitePCLRaw.batteries_v2, Version=2.1.2.1721, Culture=neutral, PublicKeyToken=8226ea5df37bcae9, processorArchitecture=MSIL">
+      <HintPath>..\packages\SQLitePCLRaw.bundle_e_sqlite3.2.1.2\lib\net461\SQLitePCLRaw.batteries_v2.dll</HintPath>
+    </Reference>
+    <Reference Include="SQLitePCLRaw.core, Version=2.1.2.1721, Culture=neutral, PublicKeyToken=1488e028ca7ab535, processorArchitecture=MSIL">
+      <HintPath>..\packages\SQLitePCLRaw.core.2.1.2\lib\netstandard2.0\SQLitePCLRaw.core.dll</HintPath>
+    </Reference>
+    <Reference Include="SQLitePCLRaw.provider.dynamic_cdecl, Version=2.1.2.1721, Culture=neutral, PublicKeyToken=b68184102cba0b3b, processorArchitecture=MSIL">
+      <HintPath>..\packages\SQLitePCLRaw.provider.dynamic_cdecl.2.1.2\lib\netstandard2.0\SQLitePCLRaw.provider.dynamic_cdecl.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Buffers, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Buffers.4.5.1\lib\net461\System.Buffers.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Collections.Immutable, Version=1.2.5.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Collections.Immutable.1.7.1\lib\net461\System.Collections.Immutable.dll</HintPath>
+    </Reference>
+    <Reference Include="System.ComponentModel.Annotations, Version=4.2.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.ComponentModel.Annotations.4.7.0\lib\net461\System.ComponentModel.Annotations.dll</HintPath>
+    </Reference>
+    <Reference Include="System.ComponentModel.Composition" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Diagnostics.DiagnosticSource, Version=4.0.5.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Diagnostics.DiagnosticSource.4.7.1\lib\net46\System.Diagnostics.DiagnosticSource.dll</HintPath>
+    </Reference>
+    <Reference Include="System.IO, Version=4.1.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.IO.4.3.0\lib\net462\System.IO.dll</HintPath>
+      <Private>True</Private>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Memory, Version=4.0.1.1, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Memory.4.5.4\lib\net461\System.Memory.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Net.Http, Version=4.1.1.3, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Net.Http.4.3.4\lib\net46\System.Net.Http.dll</HintPath>
+      <Private>True</Private>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Numerics" />
+    <Reference Include="System.Numerics.Vectors, Version=4.1.4.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Numerics.Vectors.4.5.0\lib\net46\System.Numerics.Vectors.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Runtime, Version=4.1.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Runtime.4.3.0\lib\net462\System.Runtime.dll</HintPath>
+      <Private>True</Private>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Runtime.CompilerServices.Unsafe, Version=4.0.6.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Runtime.CompilerServices.Unsafe.4.7.1\lib\net461\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Runtime.InteropServices.RuntimeInformation, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Runtime.InteropServices.RuntimeInformation.4.0.0\lib\net45\System.Runtime.InteropServices.RuntimeInformation.dll</HintPath>
+      <Private>True</Private>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.Security.Cryptography.Algorithms, Version=4.2.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Security.Cryptography.Algorithms.4.3.0\lib\net463\System.Security.Cryptography.Algorithms.dll</HintPath>
+      <Private>True</Private>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Security.Cryptography.Encoding, Version=4.0.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Security.Cryptography.Encoding.4.3.0\lib\net46\System.Security.Cryptography.Encoding.dll</HintPath>
+      <Private>True</Private>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Security.Cryptography.Primitives, Version=4.0.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Security.Cryptography.Primitives.4.3.0\lib\net46\System.Security.Cryptography.Primitives.dll</HintPath>
+      <Private>True</Private>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Security.Cryptography.X509Certificates, Version=4.1.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Security.Cryptography.X509Certificates.4.3.0\lib\net461\System.Security.Cryptography.X509Certificates.dll</HintPath>
+      <Private>True</Private>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.ServiceModel" />
+    <Reference Include="System.ServiceModel.Activation" />
+    <Reference Include="System.Threading.Tasks.Extensions, Version=4.2.0.1, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Threading.Tasks.Extensions.4.5.4\lib\net461\System.Threading.Tasks.Extensions.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Xml.Linq" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="CustomServiceHostFactory.cs" />
+    <Compile Include="Data\ApplicationDbContext.cs" />
+    <Compile Include="ICurrencyExchangeService.cs" />
+    <Compile Include="Models\ExchangeRate.cs" />
+    <Compile Include="Models\UserCurrency.cs" />
+    <Compile Include="Models\Transaction.cs" />
+    <Compile Include="Models\User.cs" />
+    <Compile Include="NbpApiClient.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="CurrencyExchangeService.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="CurrencyExchangeService.svc" />
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <VSToolsPath Condition="'$(VSToolsPath)' == '' and '$(VisualStudioVersion)' != '' and '$(VisualStudioVersion)' != '11.0'">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
+    <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio</VSToolsPath>
+    <WcfServiceModelTargetPath>$(VSToolsPath)\WCF</WcfServiceModelTargetPath>
+  </PropertyGroup>
+  <Import Project="$(WcfServiceModelTargetPath)\Microsoft.VisualStudio.ServiceModel.targets" />
+  <ProjectExtensions>
+    <VisualStudio>
+      <FlavorProperties GUID="{3D9AD99F-2412-4246-B90B-4EAA41C64699}">
+        <WcfProjectProperties>
+          <AutoStart>True</AutoStart>
+        </WcfProjectProperties>
+      </FlavorProperties>
+    </VisualStudio>
+  </ProjectExtensions>
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\packages\Microsoft.EntityFrameworkCore.Design.3.1.32\build\net461\Microsoft.EntityFrameworkCore.Design.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.EntityFrameworkCore.Design.3.1.32\build\net461\Microsoft.EntityFrameworkCore.Design.props'))" />
+  </Target>
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
+
+
+
+------------------------------------------------------------------------------------------------------------------------
+
+
+
+"C:\Users\Hashim\source\repos\CurrencyExchangeService\CurrencyExchangeService\CurrencyExchangeService.csproj.user"
+
+
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="Current" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ProjectExtensions>
+    <VisualStudio>
+      <FlavorProperties GUID="{3D9AD99F-2412-4246-B90B-4EAA41C64699}">
+        <WcfProjectProperties>
+          <PublishCopyOption>RunFiles</PublishCopyOption>
+          <PublishTargetLocation>
+          </PublishTargetLocation>
+          <PublishDeleteAllFiles>False</PublishDeleteAllFiles>
+        </WcfProjectProperties>
+      </FlavorProperties>
+    </VisualStudio>
+  </ProjectExtensions>
+</Project>
