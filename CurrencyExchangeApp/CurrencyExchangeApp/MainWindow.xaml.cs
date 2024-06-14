@@ -2,6 +2,7 @@
 using System.Linq;
 using System.ServiceModel;
 using System.Windows;
+using System.Windows.Controls;
 using CurrencyExchangeApp.CurrencyExchangeServiceReference;
 
 namespace CurrencyExchangeApp
@@ -52,7 +53,11 @@ namespace CurrencyExchangeApp
 
         private async void TopUpAccountButton_Click(object sender, RoutedEventArgs e)
         {
-            var amount = decimal.Parse(AmountTextBox.Text);
+            if (!decimal.TryParse(AmountTextBox.Text, out var amount))
+            {
+                MessageBox.Show("Please enter a valid decimal number for the amount.");
+                return;
+            }
 
             try
             {
@@ -80,9 +85,20 @@ namespace CurrencyExchangeApp
 
         private async void CalculateExchangeButton_Click(object sender, RoutedEventArgs e)
         {
-            var fromCurrency = FromCurrencyTextBox.Text;
-            var toCurrency = ToCurrencyTextBox.Text;
-            var amount = decimal.Parse(CalcAmountTextBox.Text);
+            var fromCurrency = (FromCurrencyComboBox.SelectedItem as ComboBoxItem)?.Content.ToString();
+            var toCurrency = (ToCurrencyComboBox.SelectedItem as ComboBoxItem)?.Content.ToString();
+
+            if (string.IsNullOrWhiteSpace(fromCurrency) || string.IsNullOrWhiteSpace(toCurrency))
+            {
+                MessageBox.Show("Please select both From and To currencies.");
+                return;
+            }
+
+            if (!decimal.TryParse(CalcAmountTextBox.Text, out var amount))
+            {
+                MessageBox.Show("Please enter a valid decimal number for the amount.");
+                return;
+            }
 
             try
             {
@@ -97,7 +113,13 @@ namespace CurrencyExchangeApp
 
         private async void GetExchangeRateButton_Click(object sender, RoutedEventArgs e)
         {
-            var currencyCode = CurrencyCodeTextBox.Text;
+            var currencyCode = (CurrencyCodeComboBox.SelectedItem as ComboBoxItem)?.Content.ToString();
+
+            if (string.IsNullOrWhiteSpace(currencyCode))
+            {
+                MessageBox.Show("Please select a currency code.");
+                return;
+            }
 
             try
             {
@@ -112,13 +134,22 @@ namespace CurrencyExchangeApp
 
         private async void GetArchivedRatesButton_Click(object sender, RoutedEventArgs e)
         {
-            var startDate = DateTime.Parse(StartDatePicker.Text);
-            var endDate = DateTime.Parse(EndDatePicker.Text);
+            if (!DateTime.TryParse(StartDatePicker.Text, out var startDate))
+            {
+                MessageBox.Show("Please enter a valid start date.");
+                return;
+            }
+
+            if (!DateTime.TryParse(EndDatePicker.Text, out var endDate))
+            {
+                MessageBox.Show("Please enter a valid end date.");
+                return;
+            }
 
             try
             {
                 var rates = await _serviceClient.GetArchivedExchangeRatesAsync(startDate, endDate);
-                ArchivedRatesLabel.Content = "Archived Rates:\n" + string.Join("\n", rates.Select(r => $"{r.Date.ToShortDateString()}: {r.Rate}"));
+                ArchivedRatesLabel.Content = "Archived Rates:\n" + string.Join("\n", rates.Take(15).Select(r => $"{r.Date.ToShortDateString()}: {r.Rate}"));
             }
             catch (FaultException ex)
             {
@@ -130,11 +161,11 @@ namespace CurrencyExchangeApp
         {
             TopUpAccountButton.IsEnabled = true;
             GetUserBalanceButton.IsEnabled = true;
-            FromCurrencyTextBox.IsEnabled = true;
-            ToCurrencyTextBox.IsEnabled = true;
+            FromCurrencyComboBox.IsEnabled = true;
+            ToCurrencyComboBox.IsEnabled = true;
             CalcAmountTextBox.IsEnabled = true;
             CalculateExchangeButton.IsEnabled = true;
-            CurrencyCodeTextBox.IsEnabled = true;
+            CurrencyCodeComboBox.IsEnabled = true;
             GetExchangeRateButton.IsEnabled = true;
             StartDatePicker.IsEnabled = true;
             EndDatePicker.IsEnabled = true;
