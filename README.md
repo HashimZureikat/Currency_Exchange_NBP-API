@@ -118,6 +118,12 @@ CurrencyExchangeSolution
    - Select the start and end dates.
    - Click "Get Archived Rates".
 
+![image](https://github.com/HashimZureikat/Currency_Exchange_NBP-API/assets/87613242/2e6af547-b608-428e-9df7-eea9abaf8617)
+
+
+
+
+
 ## License
 
 This project is licensed under the MIT License. See the LICENSE file for more details.
